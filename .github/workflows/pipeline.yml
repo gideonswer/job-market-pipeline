@@ -1,0 +1,41 @@
+name: Daily job scrape
+
+on:
+  schedule:
+    - cron: "30 3 * * *"   # 03:30 UTC = 09:00 IST, every day
+  workflow_dispatch:        # "Run workflow" button in the Actions tab
+    inputs:
+      sources:
+        description: "Sources to scrape"
+        default: "adzuna,remotive"
+
+concurrency:
+  group: pipeline
+  cancel-in-progress: false
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      ADZUNA_APP_ID: ${{ secrets.ADZUNA_APP_ID }}
+      ADZUNA_APP_KEY: ${{ secrets.ADZUNA_APP_KEY }}
+      EXTRACT_LIMIT: "150"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Check DATABASE_URL secret
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::error::Add a DATABASE_URL repository secret (e.g. a free Neon or Supabase Postgres)."
+            exit 1
+          fi
+      - name: Run pipeline
+        run: python -m pipeline.run --sources "${{ github.event.inputs.sources || 'adzuna,remotive' }}"
