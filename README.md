@@ -128,3 +128,6 @@ Subclass `BaseScraper`, implement `fetch() -> list[RawJob]`, and register it in 
 ## Tech stack
 
 Python 3.11 · httpx · BeautifulSoup · Pydantic v2 · SQLAlchemy 2.0 · PostgreSQL 16 · Groq (Llama 3.3) · Google Gemini · pandas · Plotly · Streamlit · GitHub Actions · Docker Compose · pytest
+
+## Live Demo Link
+**🔗 Live demo: [ai-job-market-india.streamlit.app](https://ai-job-market-india.streamlit.app)**
